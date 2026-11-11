@@ -1,0 +1,239 @@
+@import "tailwindcss";
+
+/* Mode jour. L'orange reste le même dans les deux thèmes : c'est la marque. */
+:root {
+  --ocd: #f26a1b;
+  --ocd-fonce: #cf5212;
+  --ocd-pale: #fff3ea;
+  --encre: #141210;
+  --gris: #6f6762;
+  --bord: #e9e3dd;
+  --sable: #faf7f4;
+  --papier: #ffffff;
+  --inverse: #141210;
+  --sur-inverse: #ffffff;
+  --ombre: 0 24px 60px -30px rgb(20 18 16 / 0.35);
+}
+
+/* Mode nuit : on garde le réglage système quand l'utilisateur n'a rien choisi. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ocd: #ff7d33;
+    --ocd-fonce: #ff9557;
+    --ocd-pale: #2a1a10;
+    --encre: #f6f1ec;
+    --gris: #a49a92;
+    --bord: #332d28;
+    --sable: #1b1815;
+    --papier: #121010;
+    --inverse: #1f1b18;
+    --sur-inverse: #f6f1ec;
+    --ombre: 0 24px 60px -30px rgb(0 0 0 / 0.8);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ocd: #ff7d33;
+  --ocd-fonce: #ff9557;
+  --ocd-pale: #2a1a10;
+  --encre: #f6f1ec;
+  --gris: #a49a92;
+  --bord: #332d28;
+  --sable: #1b1815;
+  --papier: #121010;
+  --inverse: #1f1b18;
+  --sur-inverse: #f6f1ec;
+  --ombre: 0 24px 60px -30px rgb(0 0 0 / 0.8);
+}
+
+@theme inline {
+  --color-ocd: var(--ocd);
+  --color-ocd-fonce: var(--ocd-fonce);
+  --color-ocd-pale: var(--ocd-pale);
+  --color-encre: var(--encre);
+  --color-gris: var(--gris);
+  --color-bord: var(--bord);
+  --color-sable: var(--sable);
+  --color-papier: var(--papier);
+  --color-inverse: var(--inverse);
+  --color-sur-inverse: var(--sur-inverse);
+  --font-sans: var(--police-sans);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--police-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.titre-geant {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  font-size: clamp(2.6rem, 11vw, 6.5rem);
+}
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--ocd);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.95rem 1.8rem;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.bouton:hover {
+  background: var(--ocd-fonce);
+  box-shadow: 0 10px 30px -12px var(--ocd);
+}
+.bouton:active {
+  transform: translateY(1px);
+}
+.bouton:disabled {
+  background: var(--bord);
+  color: var(--gris);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.bouton-vide {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1.5px solid var(--bord);
+  color: var(--encre);
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.95rem 1.8rem;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.bouton-vide:hover {
+  border-color: var(--encre);
+}
+
+.carte {
+  background: var(--papier);
+  border: 1.5px solid var(--bord);
+  border-radius: 1.25rem;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.25s ease;
+}
+
+.carte-levee:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--ombre);
+}
+
+.champ {
+  width: 100%;
+  border: 1.5px solid var(--bord);
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  background: var(--papier);
+  color: var(--encre);
+  transition: border-color 0.15s ease;
+}
+.champ:focus {
+  outline: none;
+  border-color: var(--ocd);
+}
+.champ::placeholder {
+  color: var(--gris);
+  opacity: 0.7;
+}
+
+.surtitre {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+
+/* Apparition au défilement. Sans JS actif, le contenu reste visible. */
+.apparition {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.7, 0.3, 1), transform 0.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.apparition.vue {
+  opacity: 1;
+  transform: none;
+}
+
+/* Le compteur du bandeau d'ouverture. */
+@keyframes pulsation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.point-direct {
+  animation: pulsation 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .apparition {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .point-direct {
+    animation: none;
+  }
+  .carte-levee:hover {
+    transform: none;
+  }
+}
+
+@media print {
+  .sans-impression {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
+
+/* L'icône du thème suit l'état réellement appliqué, sans passer par React. */
+.icone-jour {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .icone-jour {
+    display: inline;
+  }
+  :root:not([data-theme="light"]) .icone-nuit {
+    display: none;
+  }
+}
+:root[data-theme="dark"] .icone-jour {
+  display: inline;
+}
+:root[data-theme="dark"] .icone-nuit {
+  display: none;
+}
+:root[data-theme="light"] .icone-jour {
+  display: none;
+}
+:root[data-theme="light"] .icone-nuit {
+  display: inline;
+}
