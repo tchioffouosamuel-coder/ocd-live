@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Apparition from "@/components/Apparition";
+import CompteurOuverture from "@/components/CompteurOuverture";
 import { Entete, PiedDePage } from "@/components/Marque";
 import { FORMATS, PACKAGES, estLangue, formatFCFA, prixHeure, type Format } from "@/lib/ocd";
 import { textes } from "@/lib/textes";
@@ -24,20 +25,28 @@ export default async function Accueil({ params }: { params: Promise<{ locale: st
       <main>
         {/* Le brief de Bovann : dès que tu ouvres, tu vois les deux formats. Rien d'autre. */}
         <section className="mx-auto max-w-5xl px-5 pb-16 pt-12 sm:pt-16">
-          <Apparition as="p" className="surtitre flex items-center gap-2">
-            <span className="point-direct inline-block h-2 w-2 rounded-full bg-ocd" />
-            {t.accueil.surtitre}
-          </Apparition>
-          <Apparition as="h1" delai={60} className="titre-geant mt-4">
-            {t.accueil.titre1}
-            <br />
-            {t.accueil.titre2}
-            <br />
-            <span className="text-ocd">{t.accueil.titre3}</span>
-          </Apparition>
-          <Apparition as="p" delai={120} className="mt-6 max-w-xl text-lg text-gris">
-            {t.accueil.intro}
-          </Apparition>
+          {/* Le titre laissait un grand vide à sa droite : le compte à rebours l'occupe. */}
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+            <div>
+              <Apparition as="p" className="surtitre flex items-center gap-2">
+                <span className="point-direct inline-block h-2 w-2 rounded-full bg-ocd" />
+                {t.accueil.surtitre}
+              </Apparition>
+              <Apparition as="h1" delai={60} className="titre-geant mt-4">
+                {t.accueil.titre1}
+                <br />
+                {t.accueil.titre2}
+                <br />
+                <span className="text-ocd">{t.accueil.titre3}</span>
+              </Apparition>
+              <Apparition as="p" delai={120} className="mt-6 max-w-xl text-lg text-gris">
+                {t.accueil.intro}
+              </Apparition>
+            </div>
+            <Apparition delai={150}>
+              <CompteurOuverture langue={locale} />
+            </Apparition>
+          </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {(Object.keys(FORMATS) as Format[]).map((cle, i) => (

@@ -219,7 +219,7 @@ function EtapeFormat({ dossier, maj, langue, t }: EtapeProps) {
               type="button"
               aria-pressed={choisi}
               onClick={() => maj("format", cle)}
-              className={`carte p-6 text-left ${choisi ? "border-ocd bg-ocd-pale" : "carte-levee hover:border-ocd"}`}
+              className={`carte carte-choix p-6 text-left ${choisi ? "carte-choisie" : "carte-levee hover:border-ocd"}`}
             >
               <h2 className="text-xl font-extrabold tracking-tight">{FORMATS[cle][langue].nom}</h2>
               <p className="mt-1 text-sm font-semibold text-ocd">{FORMATS[cle][langue].lieu}</p>
@@ -249,7 +249,7 @@ function EtapeDate({ dossier, maj, langue, t }: EtapeProps) {
               aria-label={`${j.nomJour} ${j.jour}${j.ferme ? ` — ${t.tunnel.ferme}` : ""}`}
               aria-pressed={choisi}
               onClick={() => maj("date", j.iso)}
-              className={`rounded-xl border-[1.5px] py-3 text-center transition ${
+              className={`rounded-xl border-[1.5px] py-3 text-center transition active:scale-[0.97] ${
                 j.ferme
                   ? "border-bord text-bord"
                   : choisi
@@ -287,7 +287,7 @@ function EtapeHeure({ dossier, maj, pris, langue, t }: EtapeProps & { pris: stri
               aria-label={`${h} → ${finCreneau(h, 1.5)}${occupe ? ` — ${t.tunnel.pris}` : ""}`}
               aria-pressed={choisi}
               onClick={() => maj("heure", h)}
-              className={`rounded-xl border-[1.5px] px-3 py-4 transition ${
+              className={`rounded-xl border-[1.5px] px-3 py-4 transition active:scale-[0.97] ${
                 occupe
                   ? "border-bord text-bord line-through"
                   : choisi
@@ -319,16 +319,19 @@ function EtapeFormule({ dossier, maj, langue, t }: EtapeProps) {
               type="button"
               aria-pressed={choisi}
               onClick={() => maj("formule", p.id)}
-              className={`carte flex w-full flex-wrap items-center justify-between gap-4 p-5 text-left ${
-                choisi ? "border-ocd bg-ocd-pale" : "hover:border-ocd"
+              className={`carte carte-choix flex w-full flex-wrap items-center justify-between gap-4 p-5 text-left ${
+                choisi ? "carte-choisie" : "hover:border-ocd"
               }`}
             >
-              <span>
-                <span className="text-lg font-extrabold tracking-tight">{p[langue].nom}</span>
-                <span className="block text-sm text-gris">{p[langue].duree}</span>
+              <span className="flex items-center gap-3">
+                {choisi && <span className="coche" aria-hidden="true">✓</span>}
+                <span>
+                  <span className="text-lg font-extrabold tracking-tight">{p[langue].nom}</span>
+                  <span className="block text-sm text-gris">{p[langue].duree}</span>
+                </span>
               </span>
               <span className="text-right">
-                <span className="block text-xl font-extrabold">{formatFCFA(p.prix)}</span>
+                <span className={`block text-xl font-extrabold ${choisi ? "text-ocd" : ""}`}>{formatFCFA(p.prix)}</span>
                 <span className="block text-xs text-gris">
                   {prixHeure(p) ? `${formatFCFA(prixHeure(p)!)} ${t.accueil.parHeure}` : t.accueil.annonceComprise}
                 </span>

@@ -134,6 +134,40 @@ body {
   box-shadow: var(--ombre);
 }
 
+/*
+ * Cartes qu'on choisit (format, formule). Deux besoins distincts :
+ * sentir l'enfoncement au moment du clic, et voir ensuite ce qui est retenu.
+ * Le fond --ocd-pale seul ne suffisait pas : en thème nuit il est trop
+ * proche de --papier. Le liseré orange, lui, se voit dans les deux thèmes.
+ */
+.carte-choix {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.carte-choix:active {
+  transform: scale(0.99);
+}
+.carte-choisie {
+  border-color: var(--ocd);
+  background: var(--ocd-pale);
+  box-shadow: inset 0 0 0 1.5px var(--ocd);
+}
+
+/* Pastille de confirmation sur la carte retenue. */
+.coche {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: var(--ocd);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
 .champ {
   width: 100%;
   border: 1.5px solid var(--bord);
@@ -199,6 +233,9 @@ body {
     animation: none;
   }
   .carte-levee:hover {
+    transform: none;
+  }
+  .carte-choix:active {
     transform: none;
   }
 }
