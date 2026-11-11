@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CATEGORIES,
@@ -81,6 +81,38 @@ export default function Tunnel({ langue }: { langue: Langue }) {
   const formule = PACKAGES.find((p) => p.id === dossier.formule);
   const maj = (champ: keyof Dossier, valeur: string) => setDossier((d) => ({ ...d, [champ]: valeur }));
 
+  // Les quatre premières étapes n'attendent qu'un choix : le clic sur l'option
+  // sert aussi de validation. On laisse un court délai pour que le visiteur
+  // voie ce qu'il vient de retenir avant que l'écran ne change.
+  const minuterie = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function arreter() {
+    if (minuterie.current) {
+      clearTimeout(minuterie.current);
+      minuterie.current = null;
+    }
+  }
+
+  useEffect(() => () => {
+    if (minuterie.current) clearTimeout(minuterie.current);
+  }, []);
+
+  // Toute navigation explicite annule un passage automatique en attente :
+  // sans ça, un Retour cliqué juste après un choix serait aussitôt défait.
+  function allerA(n: number) {
+    arreter();
+    setEtape(n);
+  }
+
+  function choisir(champ: keyof Dossier, valeur: string) {
+    maj(champ, valeur);
+    arreter();
+    minuterie.current = setTimeout(() => {
+      minuterie.current = null;
+      setEtape((e) => Math.min(e + 1, 5));
+    }, 220);
+  }
+
   const peutContinuer = [
     !!dossier.format,
     !!dossier.date,
@@ -89,6 +121,12 @@ export default function Tunnel({ langue }: { langue: Langue }) {
     !!(dossier.business && dossier.categorie && dossier.produit && dossier.responsable && dossier.whatsapp && dossier.ville),
     !!dossier.paiement,
   ][etape];
+
+  // Sur les étapes à choix unique, Continuer ne sert qu'à celui qui revient en
+  // arrière : sa sélection est déjà faite, il lui faut un moyen de repartir
+  // sans avoir à recliquer la même option.
+  const aChoixUnique = etape <= 3;
+  const montrerContinuer = etape === 5 || !aChoixUnique || peutContinuer;
 
   async function envoyer() {
     setEnvoi(true);
@@ -110,14 +148,14 @@ export default function Tunnel({ langue }: { langue: Langue }) {
 
   return (
     <main className="mx-auto max-w-5xl px-5 py-8">
-      <Progression etape={etape} aller={setEtape} dossier={dossier} noms={t.tunnel.etapes} />
+      <Progression etape={etape} aller={allerA} dossier={dossier} noms={t.tunnel.etapes} />
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_300px] lg:items-start">
         <div key={etape} className="apparition vue">
-          {etape === 0 && <EtapeFormat dossier={dossier} maj={maj} langue={langue} t={t} />}
-          {etape === 1 && <EtapeDate dossier={dossier} maj={maj} langue={langue} t={t} />}
-          {etape === 2 && <EtapeHeure dossier={dossier} maj={maj} pris={pris} langue={langue} t={t} />}
-          {etape === 3 && <EtapeFormule dossier={dossier} maj={maj} langue={langue} t={t} />}
+          {etape === 0 && <EtapeFormat dossier={dossier} maj={choisir} langue={langue} t={t} />}
+          {etape === 1 && <EtapeDate dossier={dossier} maj={choisir} langue={langue} t={t} />}
+          {etape === 2 && <EtapeHeure dossier={dossier} maj={choisir} pris={pris} langue={langue} t={t} />}
+          {etape === 3 && <EtapeFormule dossier={dossier} maj={choisir} langue={langue} t={t} />}
           {etape === 4 && <EtapeToi dossier={dossier} maj={maj} langue={langue} t={t} />}
           {etape === 5 && <EtapePaiement dossier={dossier} maj={maj} t={t} />}
 
@@ -125,27 +163,31 @@ export default function Tunnel({ langue }: { langue: Langue }) {
             <p className="mt-6 rounded-xl bg-ocd-pale px-4 py-3 text-sm font-semibold text-ocd-fonce">{erreur}</p>
           )}
 
-          <div className="mt-10 flex gap-3">
-            {etape > 0 && (
-              <button type="button" className="bouton-vide" onClick={() => setEtape(etape - 1)}>
-                {t.tunnel.retour}
-              </button>
-            )}
-            {etape < 5 ? (
-              <button
-                type="button"
-                className="bouton flex-1 sm:flex-none"
-                disabled={!peutContinuer}
-                onClick={() => setEtape(etape + 1)}
-              >
-                {t.tunnel.continuer}
-              </button>
-            ) : (
-              <button type="button" className="bouton flex-1 sm:flex-none" disabled={envoi} onClick={envoyer}>
-                {envoi ? t.tunnel.patiente : `${t.tunnel.payer} ${formule ? formatFCFA(formule.prix) : ""}`}
-              </button>
-            )}
-          </div>
+          {(etape > 0 || montrerContinuer) && (
+            <div className="mt-10 flex gap-3">
+              {etape > 0 && (
+                <button type="button" className="bouton-vide" onClick={() => allerA(etape - 1)}>
+                  {t.tunnel.retour}
+                </button>
+              )}
+              {etape === 5 ? (
+                <button type="button" className="bouton flex-1 sm:flex-none" disabled={envoi} onClick={envoyer}>
+                  {envoi ? t.tunnel.patiente : `${t.tunnel.payer} ${formule ? formatFCFA(formule.prix) : ""}`}
+                </button>
+              ) : (
+                montrerContinuer && (
+                  <button
+                    type="button"
+                    className="bouton flex-1 sm:flex-none"
+                    disabled={!peutContinuer}
+                    onClick={() => allerA(etape + 1)}
+                  >
+                    {t.tunnel.continuer}
+                  </button>
+                )
+              )}
+            </div>
+          )}
         </div>
 
         <Recapitulatif dossier={dossier} langue={langue} t={t} />
